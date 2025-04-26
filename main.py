@@ -4,10 +4,11 @@ from random import *
 win_width = 800
 win_height = 600
 window = display.set_mode((win_width, win_height), flags=RESIZABLE)
-display.set_caption("Звёздные войны в Китае")
+display.set_caption("Сталин играет в Пинг-Понг!")
 backgr = transform.scale(image.load("stalin.jpg"), (800, 600))
 
 player_image = "roketka1.png"
+shar = "atimka.png"
 fps = 60
 clock = time.Clock()
 
@@ -24,6 +25,7 @@ class GameSprite(sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = player_x
         self.rect.y = player_y
+        self.vector = Vector2(1, 1).normalize()
 
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
@@ -42,13 +44,24 @@ class Player(GameSprite):
 
 
 class Enemy(GameSprite):
+
+    def __init__(self, player_image, player_x, player_y, player_speed):
+        super().__init__(player_image, player_x, player_y, player_speed)
+
     def update(self):
-        self.rect.y += randint(1, 4)
-        if self.rect.y > 600:
-            self.rect.y = 0
-            self.rect.x = randint(0, 700)
+        self.rect.x += self.vector.x * self.speed
+        self.rect.y += self.vector.y * self.speed
+        if self.rect.x <= 0 or self.rect.x >= (win_width-70):
+            self.vector.x = -self.vector.x
+            self.speed += 0.1
+        if self.rect.y <= 0 or self.rect.y >= (win_height-90):
+            self.vector.y = -self.vector.y
+            self.speed += 0.1
+
+
 
 player = Player(player_image, 50, 400, 5)
+sharik = Enemy(shar, 50, 400, 5)
 
 pt = True
 while pt:
@@ -56,6 +69,8 @@ while pt:
     window.blit(backgr, (0, 0))
     player.reset()
     player.move()
+    sharik.reset()
+    sharik.update()
 
     for e in event.get():
         if e.type == QUIT:
